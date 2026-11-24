@@ -1,2 +1,7 @@
 *.db
 test.py
+test2.py
+database.py
+schema.py
+insertions.py
+queries.py

@@ -2,39 +2,52 @@ import sys
 import colorama
 import sqlite3
 import time
-db = input(f"{colorama.Fore.RED}Enter data base name (should end with .db) : {colorama.Style.RESET_ALL}")
+from colorama import Fore , Style
+db = input(f"{Fore.RED}Enter data base name (should end with .db) : {Style.RESET_ALL}")
 
 if (db.endswith(".db")):
-    print(f"{colorama.Fore.LIGHTYELLOW_EX} Connected {colorama.Style.RESET_ALL}")
+    print(f"{Fore.LIGHTYELLOW_EX} Connected {Style.RESET_ALL}")
 
 else : 
-    raise ValueError(f"{colorama.Fore.RED}Failed to connect {colorama.Style.RESET_ALL}")
+    raise ValueError(f"{Fore.RED}Failed to connect {Style.RESET_ALL}")
 
 connection = sqlite3.connect(db) 
 tables_dict = {}
+coulumns_dict_number_name = {}
+coulumns_dict_number_type = {}
+selected_column = ""
+selected_columns =[]
 c = connection.cursor()
 def main () :
     while True : 
-        print(f"{colorama.Fore.RED} Enter a number from below {colorama.Style.RESET_ALL}")
-        print(f"{colorama.Fore.YELLOW} 1 - Database tables {colorama.Style.RESET_ALL}")
-        print(f"{colorama.Fore.YELLOW} 2 - Database Selection")
-        print(f"{colorama.Fore .YELLOW} 3 - Full Schema {colorama.Style.RESET_ALL}")
-        print(f"{colorama.Fore.RED} 4 - EXIT {colorama.Style.RESET_ALL}")
-        num = int(input(f"{colorama.Fore.YELLOW} Enter a Number : {colorama.Style.RESET_ALL}"))
+        print(f"{Fore.RED} Enter a number from below {Style.RESET_ALL}")
+        print(f"{Fore.YELLOW} 1 - Database tables {Style.RESET_ALL}")
+        print(f"{Fore.YELLOW} 2 - Database Selection")
+        print(f"{Fore .YELLOW} 3 - Full Schema {Style.RESET_ALL}")
+        print(f"{Fore.RED} 4 - EXIT {Style.RESET_ALL}")
+        num = int(input(f"{Fore.YELLOW} Enter a Number : {Style.RESET_ALL}"))
         if num == 1 : 
             get_tables()
             time.sleep(5)
         if num == 2 : 
             get_tables()
-            intput_table = int(input(f"{colorama.Fore.CYAN}Enter table number of table you want to Select from (0 to exite) : {colorama.Style.RESET_ALL}"))
+            intput_table = int(input(f"{Fore.CYAN}Enter table number of table you want to Select from (0 to exite) : {Style.RESET_ALL}"))
             if intput_table == 0 : sys.exit()
-            print(f"{colorama.Fore.RED} Table Choosen : {tables_dict.get(intput_table)} {colorama.Style.RESET_ALL}")
-            print(f"{colorama.Fore.LIGHTRED_EX}Coulnms : {colorama.Style.RESET_ALL}") 
+            print(f"{Fore.RED} Table Choosen : {tables_dict.get(intput_table)} {Style.RESET_ALL}")
+            print(f"{Fore.LIGHTRED_EX}Coulnms : {Style.RESET_ALL}") 
             get_columns(intput_table)
-            input_column = int(input(f"{colorama.Fore.BLUE}Enter Column number Or Coulmns numbers (0 to exite): {colorama.Style.RESET_ALL}"))
+            input_columns_list = list(map(int, input(f"{Fore.BLUE}Enter Column number Or Coulmns numbers SPACES BETWEEN (-1 Select All and 0 to exite): {Style.RESET_ALL}").split()))
+            if -1 in input_columns_list :
+                selected_column = "*"
+                print(f"{Fore.GREEN} All columns that will be printed {Style.RESET_ALL}")
+            else :
+                for number in input_columns_list : 
+                    selected_columns.append(coulumns_dict_number_name.get(number))
+                print(f"{Fore.RED}Selected Columns : {selected_columns} {Style.RESET_ALL}")
+
         if num == 3 : get_schema()
         if num ==4 :
-            print(f"{colorama.Fore.LIGHTMAGENTA_EX} GOODBYE... {colorama.Style.RESET_ALL}")
+            print(f"{Fore.LIGHTMAGENTA_EX} GOODBYE... {Style.RESET_ALL}")
             sys.exit()
 
 
@@ -44,7 +57,7 @@ def get_tables():
     counter = 1
     for i in result : 
         tables_dict[counter] = i[0]
-        print(f"{colorama.Fore.LIGHTBLUE_EX} --{counter} {i[0]} {colorama.Style.RESET_ALL}")    
+        print(f"{Fore.LIGHTBLUE_EX} --{counter} {i[0]} {Style.RESET_ALL}")    
         counter = counter+1
 def get_schema() :
     c.execute(""" SELECT sql
@@ -52,14 +65,16 @@ def get_schema() :
     WHERE sql IS NOT NULL ;""")
     r = c.fetchall()
     for i in r : 
-        print(f"{colorama.Fore.YELLOW} {i[0]} {colorama.Style.RESET_ALL}")
+        print(f"{Fore.YELLOW} {i[0]} {Style.RESET_ALL}")
 def get_columns(table_number):
     choosen_table = tables_dict.get(table_number)
     c.execute(f"PRAGMA table_info({choosen_table})")
     r = c.fetchall()
     counter = 1  
     for column in r : 
-        print(f"{colorama.Fore.RED} --{counter} {column[1]} {colorama.Style.RESET_ALL}") 
+        print(f"{Fore.RED} --{counter} {column[1]} {Style.RESET_ALL}") 
+        coulumns_dict_number_name[counter] =column[1]
+        coulumns_dict_number_type[counter] = column[2] 
         counter = counter+1
 
 main()
