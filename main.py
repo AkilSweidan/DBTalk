@@ -17,9 +17,14 @@ coulumns_dict_number_name = {}
 coulumns_dict_number_type = {}
 selected_column = ""
 selected_columns =[]
+intput_table=0
+columns = ", ".join(selected_columns)
 c = connection.cursor()
 def main () :
     while True : 
+        selected_columns =[]
+        intput_table=0
+        columns = ", ".join(selected_columns)
         print(f"{Fore.RED} Enter a number from below {Style.RESET_ALL}")
         print(f"{Fore.YELLOW} 1 - Database tables {Style.RESET_ALL}")
         print(f"{Fore.YELLOW} 2 - Database Selection")
@@ -34,20 +39,27 @@ def main () :
             intput_table = int(input(f"{Fore.CYAN}Enter table number of table you want to Select from (0 to exite) : {Style.RESET_ALL}"))
             if intput_table == 0 : sys.exit()
             print(f"{Fore.RED} Table Choosen : {tables_dict.get(intput_table)} {Style.RESET_ALL}")
-            print(f"{Fore.LIGHTRED_EX}Coulnms : {Style.RESET_ALL}") 
+            print(f"{Fore.LIGHTRED_EX}Columns : {Style.RESET_ALL}") 
             get_columns(intput_table)
-            input_columns_list = list(map(int, input(f"{Fore.BLUE}Enter Column number Or Coulmns numbers SPACES BETWEEN (-1 Select All and 0 to exite): {Style.RESET_ALL}").split()))
+            input_columns_list = list(map(int, input(f"{Fore.BLUE}Enter column number Or columns numbers SPACES BETWEEN (-1 Select All and 0 to exite): {Style.RESET_ALL}").split()))
             if -1 in input_columns_list :
                 selected_column = "*"
-                print(f"{Fore.GREEN} All columns that will be printed {Style.RESET_ALL}")
+                print(f"{Fore.GREEN} All Columns that will be printed {Style.RESET_ALL}")
+                c.execute(f"SELECT * FROM {tables_dict.get(intput_table)}")
+                print_values(c.fetchall())
             else :
+                counter = 1
+                print(f"{Fore.BLUE}Selected Columns : {Style.RESET_ALL}")
                 for number in input_columns_list : 
                     selected_columns.append(coulumns_dict_number_name.get(number))
-                print(f"{Fore.RED}Selected Columns : {selected_columns} {Style.RESET_ALL}")
-
+                    print(f"{Fore.BLUE}--{counter} {coulumns_dict_number_name.get(number)} {Style.RESET_ALL}")
+                    counter = counter+1
+                columns = ", ".join(selected_columns)
+                c.execute(f"SELECT {columns} FROM {tables_dict.get(intput_table)};")
+                print_values(c.fetchall())
         if num == 3 : get_schema()
         if num ==4 :
-            print(f"{Fore.LIGHTMAGENTA_EX} GOODBYE... {Style.RESET_ALL}")
+            print(f"{Fore.LIGHTMAGENTA_EX} Exiting... {Style.RESET_ALL}")
             sys.exit()
 
 
@@ -77,4 +89,7 @@ def get_columns(table_number):
         coulumns_dict_number_type[counter] = column[2] 
         counter = counter+1
 
+def print_values(c : list) :
+    for tuple in c : 
+        print(tuple)
 main()
